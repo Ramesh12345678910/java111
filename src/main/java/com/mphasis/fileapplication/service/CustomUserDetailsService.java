@@ -14,21 +14,20 @@ import com.mphasis.fileapplication.model.entity.UserEntity;
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
-    private UserService userService; // Reuse your existing service
+    private UserService userService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Fetch user from database (or any source) using your UserService
-        UserEntity userEntity = userService.getUser(username);
+        UserEntity userEntity = userService.getUser(username); // Replace with your user-fetching logic
         if (userEntity == null) {
-            throw new UsernameNotFoundException("User not found with username: " + username);
+            throw new UsernameNotFoundException("User not found!");
         }
-
-        // Return UserDetails (Spring's representation of user credentials and authorities)
+        System.out.println("Loading user details for: " + username);
         return new org.springframework.security.core.userdetails.User(
                 userEntity.getUsername(),
-                userEntity.getPassword(), // Make sure it's hashed
-                new ArrayList<>() // Or fetch user roles and pass them here
+                userEntity.getPassword(),
+                new ArrayList<>() 
         );
+
     }
 }

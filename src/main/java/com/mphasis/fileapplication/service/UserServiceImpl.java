@@ -1,6 +1,7 @@
 package com.mphasis.fileapplication.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +18,17 @@ public class UserServiceImpl implements UserService {
 	private PasswordEncoder passwordencoder;
 	
 	@Override
-	public UserEntity registerUser(String username,String password) {
-		UserEntity user=new UserEntity();
-		user.setUsername(username);
-		user.setPassword(passwordencoder.encode(password));
-		user.setRole("User");
-		return userrepositary.save(user);
-		
+	public UserEntity registerUser(String username, String password) {
+	    String hashedPassword = passwordencoder.encode(password);
+	    UserEntity user = new UserEntity();
+	    user.setUsername(username);
+	    user.setPassword(hashedPassword);
+	    user.setRole("User");
+	    return userrepositary.save(user);
 	}
+
+	
+
 	@Override
 	public UserEntity getUser(String username) {
 		UserEntity user=userrepositary.findByUsername(username);

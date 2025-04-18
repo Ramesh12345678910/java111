@@ -37,6 +37,8 @@ public class JwtUtil {
   
     public boolean validateToken(String token, String username) {
         Claims claims = extractClaims(token);
+        System.out.println("Generating token for user: " + username);
+
         return username.equals(claims.getSubject()) && !isTokenExpired(claims);
     }
 
@@ -54,4 +56,5 @@ public class JwtUtil {
     public Claims extractClaims(String token) {
         return jwtParser.parseSignedClaims(token).getPayload();
     }
+    
 }

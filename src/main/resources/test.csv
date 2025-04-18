@@ -1,0 +1,3 @@
+testfile01 SUCCESS    00005No Errors 
+testfile02 FAILED     00010Parse Error
+testfile03 PENDING    00000No Errors 
