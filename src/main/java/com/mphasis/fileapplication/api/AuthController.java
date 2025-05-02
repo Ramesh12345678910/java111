@@ -5,15 +5,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
+import com.mphasis.fileapplication.exceptions.InvalidCredentialsException;
+import com.mphasis.fileapplication.exceptions.ResourceNotFoundException;
 import com.mphasis.fileapplication.model.dto.AuthRequest;
 import com.mphasis.fileapplication.model.dto.AuthResponse;
 import com.mphasis.fileapplication.model.entity.UserEntity;
 import com.mphasis.fileapplication.service.UserService;
 import com.mphasis.fileapplication.utility.JwtUtil;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 @RestController
 @RequestMapping("/auth")
@@ -32,7 +38,8 @@ public class AuthController {
         this.userDetailsService = userDetailsService;
         this.userService = userService;
     }
-
+    @Operation(summary = "Register A User",description="Register the new user")
+	@ApiResponse(responseCode ="200",description="success")
     @PostMapping("/register")
     public UserEntity registerUser(@RequestBody Map<String, String> request) {
         String username = request.get("username");
@@ -42,27 +49,34 @@ public class AuthController {
         }
         return userService.registerUser(username, password);
     }
-
-
+    @Operation(summary = "Login the User",description="The registered user will be logged in")
+	@ApiResponse(responseCode ="200",description="success")
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody AuthRequest authRequest) {
-        authenticationManager.authenticate(
+    	try {
+            authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
-        );
+            );
+        } catch (AuthenticationException e) {
+            throw new InvalidCredentialsException("Invalid username or password!");
+        }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
         String token = jwtUtil.generateToken(userDetails.getUsername());
-        System.out.println("Inside authenticate method");
-        System.out.println("Username: " + authRequest.getUsername());
-
         return ResponseEntity.ok(new AuthResponse(token));
     }
-
+    @Operation(summary = "Retrive A User",description="The registered user will be retrived")
+	@ApiResponse(responseCode ="200",description="success")
     @GetMapping("/user/{username}")
     public UserEntity getUser(@PathVariable String username) {
-        return userService.getUser(username);
+    	UserEntity user = userService.getUser(username);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found: " + username);
+        }
+        return user;
     }
-
+    @Operation(summary = "Update the User",description="Update the user in database")
+	@ApiResponse(responseCode ="200",description="success")
     @PutMapping("/user/{username}/role")
     public String updateRole(@PathVariable String username, @RequestParam String newRole) {
         try {

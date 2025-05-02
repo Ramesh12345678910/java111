@@ -1,0 +1,10 @@
+FileName,status,recordCount,errors
+File1.csv,NEW,10,Error1;Error2
+File2.csv,NEW,15,Error3
+File3.csv,PROCESSED,20,
+File4.csv,FAILED,18,Error4;Error5
+File5,new,12,no error
+file6,created,10,nill
+file7,created,11,nill
+file8,created,12,nill
+file9,created,12,nill

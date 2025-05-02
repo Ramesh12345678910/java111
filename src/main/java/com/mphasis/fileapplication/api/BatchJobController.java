@@ -1,40 +1,39 @@
 package com.mphasis.fileapplication.api;
-
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+ 
 @RestController
+@RequestMapping("/batchjob")
 public class BatchJobController {
-
+ 
     private final JobLauncher jobLauncher;
-    private final Job myJob;
-
-    public BatchJobController(JobLauncher jobLauncher, Job myJob) {
+    private final Job fileLoadJob;
+ 
+    @Autowired
+    public BatchJobController(JobLauncher jobLauncher, Job fileLoadJob) {
         this.jobLauncher = jobLauncher;
-        this.myJob = myJob;
+        this.fileLoadJob = fileLoadJob;
     }
-
-    @PostMapping("/batchjob")
-    public ResponseEntity<String> triggerBatchJob(@RequestParam(required = false) String fileName) {
+ 
+    @GetMapping("/run")
+    public ResponseEntity<String> startBatchJob() {
         try {
-            // Build job parameters (e.g., pass fileName to the job if needed)
             JobParameters jobParameters = new JobParametersBuilder()
-                    .addString("JobID", String.valueOf(System.currentTimeMillis())) // Unique ID for each job run
-                    .addString("fileName", fileName) // Optional parameter for the file
+                    .addLong("time", System.currentTimeMillis())
                     .toJobParameters();
-
-            // Run the job
-            jobLauncher.run(myJob, jobParameters);
-
-            return ResponseEntity.ok("Batch job triggered successfully!");
+            jobLauncher.run(fileLoadJob, jobParameters);
+ 
+            return ResponseEntity.ok("Batch job has been started successfully.");
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Failed to trigger batch job: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Batch job failed to start: " + e.getMessage());
         }
     }
 }

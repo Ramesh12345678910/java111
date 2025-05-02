@@ -19,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.mphasis.fileapplication.service.CustomUserDetailsService;
 
 @Configuration
+
 @EnableWebSecurity
 public class SecurityConfig {
 
@@ -27,7 +28,8 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/auth/register").permitAll() // Allow login and registration endpoints
+                        .requestMatchers("/auth/login", "/auth/register","/v3/api-docs**","/swagger-resources","/swagger-resources/**",
+                                "/configuration/ui","/configuration/security","/swagger-ui/**","/webjars/**","/swagger-ui.html").permitAll() // Allow login and registration endpoints
                         .anyRequest().authenticated() // Require authentication for all other requests
                 )
                 .sessionManagement(session -> session
