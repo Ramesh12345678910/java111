@@ -19,7 +19,7 @@ public class UserEntity {
 	@Column(nullable=false)
 	private String password;
 	@Column(nullable=false)
-	private String role="User";
+	private String role;
 	
 	public UserEntity(Long id, String username, String password, String role) {
 		this.id = id;
@@ -57,7 +57,7 @@ public class UserEntity {
 	}
 
 	public void setRole(String role) {
-		this.role = "User";
+		this.role = role;
 	}
 
 	public UserEntity() {

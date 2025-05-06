@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
 	    UserEntity user = new UserEntity();
 	    user.setUsername(username);
 	    user.setPassword(hashedPassword);
-	    user.setRole("User");
+	    user.setRole("User");;
 	    return userrepositary.save(user);
 	}
 
@@ -40,6 +40,7 @@ public class UserServiceImpl implements UserService {
 		UserEntity user=userrepositary.findByUsername(username);
 		if(user!=null) {
 			user.setRole(newRole);
+			userrepositary.save(user);
 		}
 			else {
 				throw new RuntimeException("User not Found");

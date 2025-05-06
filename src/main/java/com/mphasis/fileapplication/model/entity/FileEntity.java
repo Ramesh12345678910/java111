@@ -36,19 +36,12 @@ public class FileEntity {
     @Column
     private List<String> errors;
 
-    @Column
-    private String criteria;
-
-    // Default Constructor
+ 
     public FileEntity() {
         super();
     }
 
-    // Constructor with criteria
-    public FileEntity(String criteria) {
-        this.criteria = criteria;
-    }
-
+    
     // Constructor with all fields
     public FileEntity(Long id, String filename, LocalDate loadDate, String status, Integer recordCount, List<String> errors) {
         this.id = id;
@@ -106,13 +99,5 @@ public class FileEntity {
 
     public void setErrors(List<String> errors) {
         this.errors = errors;
-    }
-
-    public String getCriteria() {
-        return criteria;
-    }
-
-    public void setCriteria(String criteria) {
-        this.criteria = criteria;
     }
 }

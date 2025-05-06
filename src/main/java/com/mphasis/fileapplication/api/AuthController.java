@@ -44,7 +44,7 @@ public class AuthController {
     public UserEntity registerUser(@RequestBody Map<String, String> request) {
         String username = request.get("username");
         String password = request.get("password");
-        if (username == null || password == null) {
+        if (username == null ||username.trim().isEmpty()|| password == null) {
             throw new RuntimeException("Username or password is missing");
         }
         return userService.registerUser(username, password);

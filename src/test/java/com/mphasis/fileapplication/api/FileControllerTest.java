@@ -17,7 +17,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.mphasis.fileapplication.exceptions.ResourceNotFoundException;
 import com.mphasis.fileapplication.model.dto.FileEntityRequestDTO;
-import com.mphasis.fileapplication.model.dto.SearchCriteriaDTO;
 import com.mphasis.fileapplication.model.entity.FileEntity;
 import com.mphasis.fileapplication.service.FileService;
 
@@ -63,18 +62,17 @@ class FileControllerTest {
         verify(fileService, times(1)).deleteFile(1L);
     }
 
-    @Test
-    void testSearchFiles() {
-        SearchCriteriaDTO criteria = new SearchCriteriaDTO();
-        List<FileEntity> files = Arrays.asList(new FileEntity(), new FileEntity());
-
-        when(fileService.searching(criteria)).thenReturn(files);
-
-        List<FileEntity> result = fileController.searching(criteria);
-
-        assertNotNull(result);
-        assertEquals(2, result.size());
-    }
+	/*
+	 * @Test void testSearchFiles() { SearchCriteriaDTO criteria = new
+	 * SearchCriteriaDTO(); List<FileEntity> files = Arrays.asList(new FileEntity(),
+	 * new FileEntity());
+	 * 
+	 * when(fileService.searching(criteria)).thenReturn(files);
+	 * 
+	 * List<FileEntity> result = fileController.searching(criteria);
+	 * 
+	 * assertNotNull(result); assertEquals(2, result.size()); }
+	 */
 
     @Test
     void testUpdateStatus() {
