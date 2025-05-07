@@ -4,6 +4,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class FileEntityResponseDTO {
+	private Long id;
+    private String filename;
+    private LocalDateTime loadDate;
+    private String status;
+    private Integer recordCount;
+    private List<String> errors;
+
     public Long getId() {
 		return id;
 	}
@@ -40,11 +47,4 @@ public class FileEntityResponseDTO {
 	public void setErrors(List<String> errors) {
 		this.errors = errors;
 	}
-	private Long id;
-    private String filename;
-    private LocalDateTime loadDate;
-    private String status;
-    private Integer recordCount;
-    private List<String> errors;
-
 }

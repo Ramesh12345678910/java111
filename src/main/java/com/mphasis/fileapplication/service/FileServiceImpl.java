@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mphasis.fileapplication.dao.FileRepositary;
+import com.mphasis.fileapplication.exceptions.ResourceNotFoundException;
 import com.mphasis.fileapplication.model.dto.FileEntityRequestDTO;
 import com.mphasis.fileapplication.model.entity.FileEntity;
 
@@ -22,6 +23,9 @@ public class FileServiceImpl implements FileService {
 	}
 	@Override
 	public FileEntity createFile(FileEntityRequestDTO request) {
+		if(request.getRecordCount()%1!=0) {
+			throw new IllegalArgumentException("Cannot insert a decimal");
+		}
 		FileEntity entity=new FileEntity();
 		entity.setFilename(request.getFilename());
 		entity.setRecordCount(request.getRecordCount());
@@ -38,8 +42,15 @@ public class FileServiceImpl implements FileService {
 	
 	@Override
 	public void updatestatus(Long id,String Status) {
+		Status=Status.toUpperCase();
 		FileEntity entity=filerepositary.findById(id).orElseThrow(null);
-		entity.setStatus(Status);
+		if(Status.equals("CREATED")||Status.equals("PROCESSING") || Status.equals("COMPLETED")) {
+			entity.setStatus(Status);
+			filerepositary.save(entity);
+		}
+		else {
+			throw new IllegalArgumentException("Invalid Request!");
+		}
 	}
 	@Override
 	public void archieveFile(Long id) {
@@ -54,8 +65,15 @@ public class FileServiceImpl implements FileService {
 	}
 	@Override
 	public List<FileEntity> searchFiles(Long id, String filename, String status, Integer recordCount, LocalDate loaddate) {
-	    return filerepositary.getSearchDetails(id, filename, status, recordCount, loaddate);
+	    List<FileEntity> results = filerepositary.getSearchDetails(id, filename, status, recordCount, loaddate);
+	    
+	    if (results.isEmpty()) {
+	        throw new ResourceNotFoundException("No matching records found!");
+	    }
+	    
+	    return results;
 	}
+
 
 
 	

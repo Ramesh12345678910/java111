@@ -21,6 +21,7 @@ import com.mphasis.fileapplication.utility.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
+@CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -44,7 +45,10 @@ public class AuthController {
     public UserEntity registerUser(@RequestBody Map<String, String> request) {
         String username = request.get("username");
         String password = request.get("password");
-        if (username == null ||username.trim().isEmpty()|| password == null) {
+        if (username == null ||username.trim().isEmpty()|| password == null 
+        		|| password.trim().isEmpty()|| !username.matches("[a-zA-Z]+")
+        		|| password.length()<4 || !password.matches(".*[a-zA-Z0-9].*")){
+        	
             throw new RuntimeException("Username or password is missing");
         }
         return userService.registerUser(username, password);
