@@ -2,6 +2,7 @@ package com.mphasis.fileapplication.security;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -12,9 +13,11 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.mphasis.fileapplication.dao.FileRepositary;
@@ -51,16 +54,16 @@ public class BatchJobConfig {
     }
     
     @Bean
-    public FlatFileItemReader<FileEntity> reader() {
+    @StepScope // Needed to allow dynamic parameters
+    public FlatFileItemReader<FileEntity> reader(@Value("#{jobParameters['filePath']}") String filePath) {
         FlatFileItemReader<FileEntity> reader = new FlatFileItemReader<>();
-        ClassPathResource resource = new ClassPathResource("fileload_data.csv");
- 
-        if (!resource.exists()) {
-            throw new RuntimeException("File not found: " + resource.getFilename());
+        
+        if (filePath == null || filePath.isEmpty()) {
+            throw new RuntimeException("File path is missing");
         }
- 
-        reader.setResource(resource);
-        reader.setLinesToSkip(1); 
+
+        reader.setResource(new FileSystemResource(filePath)); // Dynamic file path
+        reader.setLinesToSkip(1);
         reader.setLineMapper(new DefaultLineMapper<FileEntity>() {{
             setLineTokenizer(new DelimitedLineTokenizer() {{
                 setNames("fileName", "status", "recordCount", "errors");
@@ -69,9 +72,10 @@ public class BatchJobConfig {
                 setTargetType(FileEntity.class);
             }});
         }});
- 
+
         return reader;
     }
+
     @Bean
    	public ItemProcessor<FileEntity, FileEntity> processor() {
    		return new FileLoadItemProcessor();

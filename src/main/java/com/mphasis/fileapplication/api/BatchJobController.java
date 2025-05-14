@@ -5,41 +5,51 @@ import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
 
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-@CrossOrigin(origins = "http://localhost:4200", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE,RequestMethod.OPTIONS},
-allowedHeaders="*",allowCredentials="true")
 @RestController
 @RequestMapping("/batchjob")
 public class BatchJobController {
- 
+
     private final JobLauncher jobLauncher;
     private final Job fileLoadJob;
- 
+
     @Autowired
     public BatchJobController(JobLauncher jobLauncher, Job fileLoadJob) {
         this.jobLauncher = jobLauncher;
         this.fileLoadJob = fileLoadJob;
     }
- 
-    @GetMapping("/run")
-    @ApiResponse(responseCode = "200", description = "success")
-    public ResponseEntity<String> startBatchJob() {
+
+    @PostMapping("/run")
+    public ResponseEntity<Map<String, String>> startBatchJob(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
+        }
+
         try {
+            // Save file temporarily
+            String filePath = System.getProperty("java.io.tmpdir") + "/" + file.getOriginalFilename();
+            File dest = new File(filePath);
+            file.transferTo(dest);
+
+            // Pass the file path dynamically to Spring Batch job
             JobParameters jobParameters = new JobParametersBuilder()
-                    .addLong("time", System.currentTimeMillis())
+                    .addString("filePath", filePath) // Inject file path into batch job
+                    .addLong("time", System.currentTimeMillis()) // Unique identifier
                     .toJobParameters();
+
             jobLauncher.run(fileLoadJob, jobParameters);
- 
-            return ResponseEntity.ok("Batch job has been started successfully.");
+
+            return ResponseEntity.ok(Map.of("message", "Batch job started successfully", "filePath", filePath));
+
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to upload file", "details", e.getMessage()));
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("Batch job failed to start: " + e.getMessage());
+            return ResponseEntity.status(500).body(Map.of("error", "Batch job failed", "details", e.getMessage()));
         }
     }
 }

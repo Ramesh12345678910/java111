@@ -41,7 +41,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-@CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
+//@CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
 @RestController
 @RequestMapping("/files")
 @Tag(name = "File Management API", description = "Endpoints for managing files")
@@ -64,9 +64,10 @@ public class FileController {
 				||!filerequest.getFilename().matches("[a-zA-z0-9.]+")
 				|| filerequest.getRecordCount()==null
 				|| hasdecimal(filerequest.getRecordCount())
+				||filerequest.getStatus()==null
 				||isvalid(filerequest.getStatus().toUpperCase())
 				||filerequest.getRecordCount()<1
-				||filerequest.getStatus()==null
+				
 				||filerequest.getStatus().trim().isEmpty()) {
 			System.out.println(filerequest.getRecordCount());
 			throw new BadRequestException("Invalid file request!");
@@ -112,7 +113,7 @@ public class FileController {
 	@Operation(summary = "Update item", description = "Updates A Record")
 	@ApiResponse(responseCode = "200", description = "success")
 	@PutMapping("/{id}/update")
-	public void updatestatus(@PathVariable Long id, @RequestParam String Status) {
+	public void updatestatus(@PathVariable Long id, @RequestParam("status") String Status) {
 		if (Status == null || Status.isEmpty()) {
 			throw new IllegalArgumentException("Status cannot be empty!");
 		}
